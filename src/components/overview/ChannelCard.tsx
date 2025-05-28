@@ -7,12 +7,14 @@ interface ChannelCardProps {
   channel: 'email' | 'linkedin' | 'sms' | 'calls';
   title: string;
   metrics: {
-    Converstions:number;
-    Avg_Call_Time:number;
-    No_of_Minutes:number;
-    sent: number;
-    delivered: number;
-    engaged: number;
+    // For calls channel
+    Converstions: number;
+    Avg_Call_Time: number;
+    No_of_Minutes: number;
+    // For other channels
+    active: number;
+    planned: number;
+    avgConv: number;
   };
   active: boolean;
   onToggle: () => void;
@@ -55,8 +57,8 @@ const ChannelCard: React.FC<ChannelCardProps> = ({
               <p className="text-lg font-semibold text-neutral-dark">{metrics.No_of_Minutes}</p>
             </div>
             <div>
-              <p className="text-xs text-neutral-dark/70">Average Call Time</p>
-              <p className="text-lg font-semibold text-neutral-dark">{metrics.Avg_Call_Time}</p>
+              <p className="text-xs text-neutral-dark/70">AVG Call Time</p>
+              <p className="text-lg font-semibold text-neutral-dark">{metrics.Avg_Call_Time} min</p>
             </div>
             <div>
               <p className="text-xs text-neutral-dark/70">Conversions</p>
@@ -66,16 +68,16 @@ const ChannelCard: React.FC<ChannelCardProps> = ({
         ) : (
           <>
             <div>
-              <p className="text-xs text-neutral-dark/70">Sent</p>
-              <p className="text-lg font-semibold text-neutral-dark">{metrics.sent}</p>
+              <p className="text-xs text-neutral-dark/70">Active</p>
+              <p className="text-lg font-semibold text-neutral-dark">{metrics.active}</p>
             </div>
             <div>
-              <p className="text-xs text-neutral-dark/70">Delivered</p>
-              <p className="text-lg font-semibold text-neutral-dark">{metrics.delivered}</p>
+              <p className="text-xs text-neutral-dark/70">Planned</p>
+              <p className="text-lg font-semibold text-neutral-dark">{metrics.planned}</p>
             </div>
             <div>
-              <p className="text-xs text-neutral-dark/70">Engaged</p>
-              <p className="text-lg font-semibold text-neutral-dark">{metrics.engaged}</p>
+              <p className="text-xs text-neutral-dark/70">AVG Conversions</p>
+              <p className="text-lg font-semibold text-neutral-dark">{metrics.avgConv}%</p>
             </div>
           </>
         )}

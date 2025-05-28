@@ -95,11 +95,11 @@ const Overview: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <ChannelCard 
           channel="email"
-          title="Email Outreach"
+          title="Instantly Campaigns"
           metrics={{ 
-            sent: 3245, 
-            delivered: 3102, 
-            engaged: 843,
+            active: 245,  // Lower value
+            planned: 3245,  // Higher value
+            avgConv: 28,  // Percentage based on active
             Converstions: 0,
             Avg_Call_Time: 0,
             No_of_Minutes: 0
@@ -112,9 +112,9 @@ const Overview: React.FC = () => {
           channel="linkedin"
           title="LinkedIn Campaign"
           metrics={{ 
-            sent: 1243, 
-            delivered: 1243, 
-            engaged: 385,
+            active: 143,  // Lower value
+            planned: 1243,  // Higher value
+            avgConv: 32,  // Percentage based on active
             Converstions: 0,
             Avg_Call_Time: 0,
             No_of_Minutes: 0
@@ -127,9 +127,9 @@ const Overview: React.FC = () => {
           channel="sms"
           title="SMS Follow-ups"
           metrics={{ 
-            sent: 562, 
-            delivered: 543, 
-            engaged: 231,
+            active: 62,  // Lower value
+            planned: 562,  // Higher value
+            avgConv: 45,  // Percentage based on active
             Converstions: 0,
             Avg_Call_Time: 0,
             No_of_Minutes: 0
@@ -142,9 +142,9 @@ const Overview: React.FC = () => {
           channel="calls"
           title="AI Calling"
           metrics={{ 
-            sent: 321, 
-            delivered: 294, 
-            engaged: 87,
+            active: 0,
+            planned: 0,
+            avgConv: 0,
             Converstions: 45,  // Number of successful conversions
             Avg_Call_Time: 1.5, // Average call time in minutes
             No_of_Minutes: 156  // Total minutes of calls

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import Layout from '../components/layout/Layout';
 import Card from '../components/common/Card';
 import Spinner from '../components/common/Spinner';
@@ -15,6 +15,7 @@ const Leads: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<OppolloLead | null>(null);
   const [isAddToCampaignModalOpen, setIsAddToCampaignModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLeadsLoaded = useCallback((loadedLeads: OppolloLead[]) => {
     setLeads(loadedLeads);
@@ -60,6 +61,28 @@ const Leads: React.FC = () => {
     setSelectedLead(null);
   };
 
+  const filteredLeads = useMemo(() => {
+    if (!searchQuery.trim()) return leads;
+    
+    const searchWords = searchQuery.toLowerCase().trim().split(/\s+/);
+    
+    return leads.filter(lead => {
+      const leadInfo = [
+        lead.firstName,
+        lead.lastName,
+        lead.company,
+        lead.title,
+        lead.email,
+        lead.source
+      ].map(info => info.toLowerCase());
+
+      // Check if all search words are found in any of the lead's information
+      return searchWords.every(word => 
+        leadInfo.some(info => info.includes(word))
+      );
+    });
+  }, [leads, searchQuery]);
+
   return (
     <Layout title="Leads Explorer" subtitle="Discover and manage your potential customers">
       {/* Data fetching component */}
@@ -99,6 +122,8 @@ const Leads: React.FC = () => {
               type="text"
               placeholder="Search leads..."
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-neutral-dark/50" />
           </div>
@@ -126,7 +151,7 @@ const Leads: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {leads.map((lead) => (
+                {filteredLeads.map((lead) => (
                   <tr key={lead.id} className="hover:bg-neutral-light/30 cursor-pointer">
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="text-sm font-medium text-neutral-dark">
