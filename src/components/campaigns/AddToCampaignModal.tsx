@@ -34,7 +34,7 @@ const AddToCampaignModal: React.FC<AddToCampaignModalProps> = ({ isOpen, onClose
       try {
         const response = await fetch('/api/api/v2/campaigns', {
           headers: {
-            'Authorization': 'Bearer OTE5ZDY3NzMtM2ZmMi00OTZiLWFhNTAtYjI2MDJmYmRjOTVmOmtGTEpTbXJZTHZ2RA==',
+             'Authorization': `Bearer ${import.meta.env.VITE_INSTANTLY_API_KEY}`,
             'Content-Type': 'application/json'
           }
         });

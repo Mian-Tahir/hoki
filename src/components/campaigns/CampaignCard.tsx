@@ -46,7 +46,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer OTE5ZDY3NzMtM2ZmMi00OTZiLWFhNTAtYjI2MDJmYmRjOTVmOmtGTEpTbXJZTHZ2RA=='
+          'Authorization': `Bearer ${import.meta.env.VITE_INSTANTLY_API_KEY}`,
         },
         body: JSON.stringify(updateData)
       });
