@@ -1,0 +1,103 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0, 0%, 100%;
+    --foreground: 0, 0%, 18%;
+
+    --card: 0, 0%, 100%;
+    --card-foreground: 0, 0%, 18%;
+
+    --popover: 0, 0%, 100%;
+    --popover-foreground: 0, 0%, 18%;
+
+    --primary: 216, 100%, 58%;
+    --primary-foreground: 0, 0%, 100%;
+
+    --secondary: 25, 100%, 63%;
+    --secondary-foreground: 0, 0%, 100%;
+
+    --muted: 0, 0%, 96%;
+    --muted-foreground: 0, 0%, 45%;
+
+    --accent: 0, 0%, 96%;
+    --accent-foreground: 0, 0%, 18%;
+
+    --destructive: 0, 100%, 65%;
+    --destructive-foreground: 0, 0%, 100%;
+
+    --border: 0, 0%, 90%;
+    --input: 0, 0%, 90%;
+    --ring: 0, 0%, 90%;
+
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-neutral-light text-neutral-dark font-inter;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-md text-neutral-dark hover:bg-neutral-light transition-colors;
+  }
+
+  .sidebar-item.active {
+    @apply bg-neutral-light text-primary font-medium;
+  }
+
+  .card {
+    @apply bg-white rounded-lg border border-gray-200 shadow-sm p-5;
+  }
+
+  .badge-success {
+    @apply bg-success/20 text-success px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-error {
+    @apply bg-error/20 text-error px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-warning {
+    @apply bg-warning/20 text-neutral-dark px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply bg-primary/20 text-primary px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-secondary {
+    @apply bg-secondary/20 text-secondary px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-channel-email {
+    @apply bg-channel-email/20 text-channel-email px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-channel-linkedin {
+    @apply bg-channel-linkedin/20 text-channel-linkedin px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-channel-sms {
+    @apply bg-channel-sms/20 text-channel-sms px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-channel-calls {
+    @apply bg-channel-calls/20 text-neutral-dark px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .loading-spinner {
+    @apply animate-spinner border-4 border-neutral-light border-t-primary rounded-full;
+  }
+}
