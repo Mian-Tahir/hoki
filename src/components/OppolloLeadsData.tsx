@@ -56,6 +56,7 @@ const TABLE_NAME = 'apollo 2';
 export const fetchOppolloLeads = async (): Promise<OppolloLead[]> => {
   try {
     const records = await base(TABLE_NAME)
+     
       .select({
         fields: [
           'First Name', 'Last Name', 'Company', 'Title', 'Email', 'Status', 'Source',
@@ -72,7 +73,7 @@ export const fetchOppolloLeads = async (): Promise<OppolloLead[]> => {
         view: 'Grid view'
       })
       .all();
-
+console.log("recods",records)
     return records.map(record => ({
       id: record.id,
       firstName: String(record.fields['First Name'] || ''),

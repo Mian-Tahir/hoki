@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Layout from '../components/layout/Layout';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
-import { Bot, AlertCircle, CheckCircle2, RefreshCw, Save, Settings, Mail, Linkedin, MessageSquare, Phone } from 'lucide-react';
+import { Bot, AlertCircle, CheckCircle2, RefreshCw, Save, Settings, Mail, Linkedin, MessageSquare, Phone, Target, Globe, Building2, DollarSign, Sparkles, UserSearch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -42,6 +42,46 @@ const Agent: React.FC = () => {
       icon: Phone,
       description: 'Manage AI calling parameters'
     }
+  ];
+
+  const qualificationCards = [
+    {
+      id: 'domain-fit',
+      title: 'Domain Fit Qualifier',
+      icon: Target,
+      description: 'Analyzes LinkedIn company profiles to identify B2B SaaS prospects, filtering out bad-fit companies and providing qualification.'
+    },
+    {
+      id: 'url-analyzer',
+      title: 'Determine Valuable URLs',
+      icon: Globe,
+      description: 'Scans website URLs to identify pricing-related pages, helping locate company pricing information during sales research.'
+    },
+    {
+      id: 'linkedin-analyzer',
+      title: 'LinkedIn Company Profile Analyzer',
+      icon: Building2,
+      description: 'Transforms LinkedIn company data into structured business intelligence reports with key details for CRM integration.'
+    },
+    {
+      id: 'pricing-analyzer',
+      title: 'Determine Pricing',
+      icon: DollarSign,
+      description: 'Analyzes pricing pages to identify high-value SaaS prospects, filtering out low-ticket and self-serve platforms.'
+    },
+    {
+      id: 'personalization',
+      title: 'Personalization Engine',
+      icon: Sparkles,
+      description: 'Generates personalized cold email openers based on company details, target profiles, and pain points.'
+    },
+    {
+      id: 'linkedin-analyzer',
+      title: 'LinkedIn Lead Profile Analyzer',
+      icon: UserSearch,
+      description: 'Analyzes LinkedIn lead profiles to extract key professional information, contact details, and business insights for targeted outreach.'
+    },
+    
   ];
 
   const renderSettingsContent = (settingId: string) => {
@@ -374,11 +414,35 @@ const Agent: React.FC = () => {
                   </div>
                 </div>
                 <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="text-primary">
-                    Configure →
-                  </div>
+                 
                 </div>
               </button>
+            ))}
+          </div>
+        </Card>
+
+        {/* Qualification Tools Section */}
+        <Card>
+          <h3 className="text-lg font-semibold text-neutral-dark mb-4">Qualification & Analysis Agents</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {qualificationCards.map((card) => (
+              <div
+                key={card.id}
+                className="p-6 bg-neutral-light hover:bg-neutral-light/80 rounded-lg text-left border-2 border-transparent hover:border-primary relative group cursor-pointer transition-all"
+              >
+                <div className="flex items-start space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                    <card.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-base text-neutral-dark mb-1">{card.title}</h4>
+                    <p className="text-xs text-neutral-dark/70 line-clamp-3">{card.description}</p>
+                  </div>
+                </div>
+                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                
+                </div>
+              </div>
             ))}
           </div>
         </Card>

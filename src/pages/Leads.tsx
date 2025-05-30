@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import Card from '../components/common/Card';
 import Spinner from '../components/common/Spinner';
@@ -8,14 +8,28 @@ import Badge from '../components/common/Badge';
 import OppolloLeadsData, { OppolloLead } from '../components/OppolloLeadsData';
 import AddToCampaignModal from '../components/campaigns/AddToCampaignModal';
 import { cn } from '@/lib/utils';
+import { Checkbox } from "@/components/ui/checkbox";
+import { useCampaignProgress } from '@/store/campaignProgress';
+import CampaignProgress from '../components/common/CampaignProgress';
 
 const Leads: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [leads, setLeads] = useState<OppolloLead[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [selectedLead, setSelectedLead] = useState<OppolloLead | null>(null);
+  const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
   const [isAddToCampaignModalOpen, setIsAddToCampaignModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const startProgress = useCampaignProgress((state) => state.startProgress);
+  const isProgressActive = useCampaignProgress((state) => state.isActive);
+  const campaignId = useCampaignProgress((state) => state.campaignId);
+  const campaignName = useCampaignProgress((state) => state.campaignName);
+  const totalLeads = useCampaignProgress((state) => state.totalLeads);
+  const stopProgress = useCampaignProgress((state) => state.stopProgress);
+
+  // Debug logging for progress state
+  useEffect(() => {
+    console.log('Leads component - Progress state:', { isProgressActive });
+  }, [isProgressActive]);
 
   const handleLeadsLoaded = useCallback((loadedLeads: OppolloLead[]) => {
     setLeads(loadedLeads);
@@ -50,15 +64,36 @@ const Leads: React.FC = () => {
     );
   };
 
-  const handleAddToCampaign = (lead: OppolloLead, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSelectedLead(lead);
-    setIsAddToCampaignModalOpen(true);
+  const handleLeadSelection = (leadId: string) => {
+    setSelectedLeads(prev => {
+      const newSelected = new Set(prev);
+      if (newSelected.has(leadId)) {
+        newSelected.delete(leadId);
+      } else {
+        newSelected.add(leadId);
+      }
+      return newSelected;
+    });
+  };
+
+  const handleSelectAllLeads = () => {
+    if (selectedLeads.size === filteredLeads.length) {
+      setSelectedLeads(new Set());
+    } else {
+      setSelectedLeads(new Set(filteredLeads.map(lead => lead.id)));
+    }
+  };
+
+  const handleAddToCampaign = () => {
+    console.log('Add to Campaign clicked, selected leads:', selectedLeads.size);
+    if (selectedLeads.size > 0) {
+      setIsAddToCampaignModalOpen(true);
+    }
   };
 
   const handleCloseAddToCampaignModal = () => {
+    console.log('Modal closed');
     setIsAddToCampaignModalOpen(false);
-    setSelectedLead(null);
   };
 
   const filteredLeads = useMemo(() => {
@@ -85,7 +120,20 @@ const Leads: React.FC = () => {
 
   return (
     <Layout title="Leads Explorer" subtitle="Discover and manage your potential customers">
-      {/* Data fetching component */}
+    
+
+      {/* Progress Bar - Show only on Leads page when active */}
+      {isProgressActive && campaignId && (
+        <div className="w-full bg-white border-b border-gray-200 px-6 py-3 mb-6">
+          <CampaignProgress
+            campaignId={campaignId}
+            campaignName={campaignName || 'Campaign'}
+            totalLeads={totalLeads}
+            onComplete={stopProgress}
+          />
+        </div>
+      )}
+
       <OppolloLeadsData
         onLeadsLoaded={handleLeadsLoaded}
         onError={handleError}
@@ -97,9 +145,20 @@ const Leads: React.FC = () => {
           <h2 className="text-lg font-semibold text-neutral-dark">Lead Database</h2>
           <p className="text-sm text-neutral-dark/70">
             {leads.length} leads total 
+            {selectedLeads.size > 0 && ` (${selectedLeads.size} selected)`}
           </p>
         </div>
         <div className="flex items-center space-x-3">
+          <Button 
+            className={cn(
+              "bg-secondary text-white flex items-center hover:bg-secondary/90",
+              selectedLeads.size === 0 && "cursor-not-allowed"
+            )}
+            onClick={handleAddToCampaign}
+          >
+            <Plus size={16} className="mr-2" />
+            Add {selectedLeads.size > 0 ? `${selectedLeads.size} Lead${selectedLeads.size !== 1 ? 's' : ''}` : 'Leads'} to Campaign
+          </Button>
           <Button variant="outline" className="flex items-center">
             <Filter size={16} className="mr-2" />
             Filter
@@ -108,10 +167,10 @@ const Leads: React.FC = () => {
             <Download size={16} className="mr-2" />
             Export
           </Button>
-          <Button className="bg-secondary text-white flex items-center">
+          {/* <Button className="bg-secondary text-white flex items-center">
             <Plus size={16} className="mr-2" />
             Add Lead
-          </Button>
+          </Button> */}
         </div>
       </div>
       
@@ -142,17 +201,39 @@ const Leads: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-neutral-light">
                 <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-dark/70 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={selectedLeads.size === filteredLeads.length && filteredLeads.length > 0}
+                        onCheckedChange={handleSelectAllLeads}
+                        className="mr-2"
+                      />
+                      Select
+                    </div>
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-dark/70 uppercase tracking-wider">Name</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-dark/70 uppercase tracking-wider">Company</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-dark/70 uppercase tracking-wider">Title</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-dark/70 uppercase tracking-wider">Email</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-dark/70 uppercase tracking-wider">Source</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-dark/70 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {filteredLeads.map((lead) => (
-                  <tr key={lead.id} className="hover:bg-neutral-light/30 cursor-pointer">
+                  <tr 
+                    key={lead.id} 
+                    className={cn(
+                      "hover:bg-neutral-light/30 cursor-pointer",
+                      selectedLeads.has(lead.id) && "bg-neutral-light/20"
+                    )}
+                    onClick={() => handleLeadSelection(lead.id)}
+                  >
+                    <td className="px-4 py-3 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedLeads.has(lead.id)}
+                        onCheckedChange={() => handleLeadSelection(lead.id)}
+                      />
+                    </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="text-sm font-medium text-neutral-dark">
                         {`${lead.firstName} ${lead.lastName}`}
@@ -170,16 +251,6 @@ const Leads: React.FC = () => {
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="text-sm text-neutral-dark/70">{lead.source}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <Button 
-                        className="bg-secondary text-white flex items-center hover:bg-secondary/90"
-                        size="sm"
-                        onClick={(e) => handleAddToCampaign(lead, e)}
-                      >
-                        <Plus size={14} className="mr-1" />
-                        Add to Campaign
-                      </Button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -188,11 +259,26 @@ const Leads: React.FC = () => {
         )}
       </Card>
 
-      {selectedLead && (
+      {isAddToCampaignModalOpen && (
         <AddToCampaignModal
           isOpen={isAddToCampaignModalOpen}
           onClose={handleCloseAddToCampaignModal}
-          lead={selectedLead}
+          leads={filteredLeads.filter(lead => selectedLeads.has(lead.id))}
+          onSuccess={(campaignId, campaignName) => {
+            console.log('Campaign success - Starting progress:', { 
+              campaignId,
+              campaignName, 
+              leadsCount: selectedLeads.size,
+              isProgressActive 
+            });
+            
+            // Only start progress if not already active
+            if (!isProgressActive) {
+              startProgress(campaignId, campaignName, selectedLeads.size);
+            }
+            
+            setSelectedLeads(new Set());
+          }}
         />
       )}
     </Layout>

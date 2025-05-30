@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import Spinner from '../common/Spinner';
 import { toast } from 'sonner';
+import { OppolloLead } from '../OppolloLeadsData';
+import { useCampaignProgress } from '@/store/campaignProgress';
 
 interface Campaign {
   id: string;
@@ -20,14 +22,16 @@ interface Campaign {
 interface AddToCampaignModalProps {
   isOpen: boolean;
   onClose: () => void;
-  lead: any;
+  leads: OppolloLead[];
+  onSuccess: (campaignId: string, campaignName: string) => void;
 }
 
-const AddToCampaignModal: React.FC<AddToCampaignModalProps> = ({ isOpen, onClose, lead }) => {
+const AddToCampaignModal: React.FC<AddToCampaignModalProps> = ({ isOpen, onClose, leads, onSuccess }) => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const startProgress = useCampaignProgress((state) => state.startProgress);
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -65,16 +69,12 @@ const AddToCampaignModal: React.FC<AddToCampaignModalProps> = ({ isOpen, onClose
   }, [isOpen]);
 
   const handleAddToCampaign = async () => {
-    if (!selectedCampaign || !lead) return;
+    if (!selectedCampaign || leads.length === 0) return;
 
     setSubmitting(true);
     try {
-      // Log the incoming lead data
-      console.log('Original Lead Data:', lead);
-
-      // Map the lead data to match the complete structure
-      const leadData = {
-        id: lead.id || `rec${Math.random().toString(36).substring(2, 15)}`,
+      const formattedLeads = leads.map(lead => ({
+        id: lead.id,
         createdTime: new Date().toISOString(),
         fields: {
           // Basic Information
@@ -92,43 +92,38 @@ const AddToCampaignModal: React.FC<AddToCampaignModalProps> = ({ isOpen, onClose
           "Primary Email Last Verified At": lead.primaryEmailLastVerifiedAt || new Date().toISOString(),
           
           // Role Information
-          "Seniority": lead.seniority || (lead.title?.includes("CEO") || lead.title?.includes("Founder") ? "Founder" : 
-                      lead.title?.includes("CTO") ? "C-Suite" : 
-                      lead.title?.includes("VP") || lead.title?.includes("Director") ? "Executive" : "Manager"),
-          "Departments": lead.departments || (lead.title?.includes("CTO") ? "Engineering" :
-                        lead.title?.includes("CEO") ? "C-Suite" :
-                        lead.title?.includes("Marketing") ? "Marketing" :
-                        lead.title?.includes("Sales") ? "Sales" : "Other"),
+          "Seniority": lead.seniority || "",
+          "Departments": lead.departments || "",
           
           // Contact Information
-          "Contact Owner": lead.contactOwner || "myar2032002@gmail.com",
+          "Contact Owner": lead.contactOwner || "",
           "Corporate Phone": lead.corporatePhone || "",
           "Stage": lead.stage || "Cold",
-          "Account Owner": lead.accountOwner || "myar2032002@gmail.com",
+          "Account Owner": lead.accountOwner || "",
           
           // Company Information
           "# Employees": lead.employeeCount || 0,
-          "Industry": lead.industry || "Technology",
-          "Keywords": lead.keywords || "technology, software, saas, startup",
+          "Industry": lead.industry || "",
+          "Keywords": lead.keywords ? lead.keywords.split(',').map(k => k.trim()) : [],
           
           // Social Media & Web
           "Person Linkedin Url": lead.personLinkedinUrl || "",
-          "Website": lead.website || `https://${lead.company?.toLowerCase().replace(/\s+/g, '')}.com`,
+          "Website": lead.website || "",
           "Company Linkedin Url": lead.companyLinkedinUrl || "",
           
           // Location Information
-          "City": lead.city || "San Francisco",
-          "State": lead.state || "California",
-          "Country": lead.country || "United States",
+          "City": lead.city || "",
+          "State": lead.state || "",
+          "Country": lead.country || "",
           "Company Address": lead.companyAddress || "",
-          "Company City": lead.companyCity || lead.city || "San Francisco",
-          "Company State": lead.companyState || lead.state || "California",
-          "Company Country": lead.companyCountry || lead.country || "United States",
-          "Company Phone": lead.companyPhone || lead.corporatePhone || "",
+          "Company City": lead.companyCity || "",
+          "Company State": lead.companyState || "",
+          "Company Country": lead.companyCountry || "",
+          "Company Phone": lead.companyPhone || "",
           
           // Additional Information
-          "SEO Description": lead.seoDescription || `${lead.company} - ${lead.title}`,
-          "Technologies": lead.technologies || "Web, Mobile, Cloud",
+          "SEO Description": lead.seoDescription || "",
+          "Technologies": lead.technologies || "",
           
           // Status Flags
           "Email Open": lead.emailOpen || "false",
@@ -140,61 +135,53 @@ const AddToCampaignModal: React.FC<AddToCampaignModalProps> = ({ isOpen, onClose
           "Apollo Contact Id": lead.apolloContactId || "",
           "Apollo Account Id": lead.apolloAccountId || ""
         }
-      };
+      }));
 
       const requestBody = {
         campaignId: selectedCampaign,
-        lead: [leadData]
+        lead: formattedLeads
       };
 
-      // Log the formatted data being sent
-      console.log('Formatted Lead Data being sent:', JSON.stringify(requestBody, null, 2));
+      console.log('Formatted Leads Data being sent:', JSON.stringify(requestBody, null, 2));
 
-      const webhookUrl = 'https://ahtisham123.app.n8n.cloud/webhook/18ae9077-e0b8-4db8-ab60-e83083b599c1';
-      try {
-        console.log('Attempting to send request to webhook...');
-        const response = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify(requestBody)
-        });
+      const webhookUrl = 'https://ahtisham123.app.n8n.cloud/webhook/d78a4721-5b23-4c2d-a855-85f07adf75b1';
+      
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
 
-        // Log the response status and headers
-        console.log('Response status:', response.status);
-        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Server responded with error:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText
-          });
-          throw new Error(`Server responded with ${response.status}: ${errorText}`);
-        }
-
-        const responseData = await response.json();
-        console.log('Webhook Response Data:', responseData);
-
-        toast.success('Lead added to campaign successfully');
-        onClose();
-      } catch (error) {
-        console.error('Detailed error information:', {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-          cause: error.cause
-        });
-        toast.error(`Failed to add lead to campaign: ${error.message}`);
-      } finally {
-        setSubmitting(false);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Server responded with ${response.status}: ${errorText}`);
       }
+
+      const responseData = await response.json();
+      console.log('Webhook Response Data:', responseData);
+
+      // Get the campaign name
+      const campaign = campaigns.find(c => c.id === selectedCampaign);
+      
+      // Start the progress tracking
+      startProgress(selectedCampaign, campaign?.name || 'Campaign', leads.length);
+      
+      // Show success toast
+      toast.success('Workflow started successfully');
+      
+      // Call onSuccess with campaign details before closing
+      onSuccess(selectedCampaign, campaign?.name || 'Campaign');
+      
+      // Close the modal after success
+      onClose();
     } catch (error) {
-      console.error('Error adding lead to campaign:', error);
-      toast.error('Failed to add lead to campaign');
+      console.error('Error adding leads to campaign:', error);
+      toast.error(`Failed to add leads to campaign: ${error.message}`);
+    } finally {
+      setSubmitting(false);
     }
   };
 

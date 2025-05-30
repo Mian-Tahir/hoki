@@ -7,7 +7,7 @@ interface TableRecord {
   fields: FieldSet;
 }
 
-const TABLE_NAME = 'Leads'; // Define the table name as a constant
+const TABLE_NAME = 'apollo 2'; // Define the table name as a constant
 
 // Function to get leads count for specific date
 export const getLeadsCountToday = async (): Promise<number> => {
